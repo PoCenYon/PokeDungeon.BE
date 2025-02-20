@@ -1,8 +1,8 @@
 import express from 'express';
-import authRoutes from './routes/authRoutes.ts';
+import authRoutes from './routes/authRoutes';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { connectDB } from './db.ts';
+import { connectDB } from './db';
 connectDB();
 dotenv.config();
 const app = express();
