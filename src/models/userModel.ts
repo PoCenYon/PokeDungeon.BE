@@ -25,7 +25,7 @@ const UserSchema: Schema = new Schema({
   last_login: { type: Date },
   is_verified: { type: Boolean, default: false },
   role: { type: String, default: 'user' },
-  verification_token: { type: String }  // ✅ 추가된 부분
+  verification_token: { type: String }, // 이메일 인증 토큰, 액세스토큰 등
 });
 
 // User 모델 생성

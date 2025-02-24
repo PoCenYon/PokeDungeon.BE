@@ -73,7 +73,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     user.verification_token = undefined;
     await user.save();
 
-    res.status(200).json({ message: '이메일이 인증되었습니다.' });
+    res.status(200).json({ message: '이메일이 인증되었습니다. 이제 로그인할 수 있습니다.' });
   } catch (error) {
     res.status(500).json({ message: '이메일 인증 중 오류가 발생했습니다.', error });
   }
@@ -90,15 +90,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     }
 
     const hashedPassword = await hashPassword(password);
+    const verificationToken = crypto.randomBytes(20).toString('hex'); // 이메일 인증 토큰 생성
+
     const newUser = new User({
       id: generateRandomId(),
       email,
       password: hashedPassword,
-      region
+      region,
+      role: 'user',
+      is_verified: false,
+      verification_token: verificationToken // 인증 토큰 저장
     });
 
     await newUser.save();
-    res.status(201).json({ message: '회원가입이 완료되었습니다.' });
+
+    // 이메일 인증 링크 전송
+    const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+    await sendEmail(email, '이메일 인증', `계정을 인증하려면 다음 링크를 클릭하세요: ${verificationLink}`);
+
+    res.status(201).json({ message: '회원가입이 완료되었습니다. 이메일을 확인해 주세요.' });
   } catch (error) {
     res.status(500).json({ message: '회원가입 중 오류가 발생했습니다.', error });
   }
@@ -128,7 +138,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'secret', // .env에 JWT_SECRET 추가 필요
-      { expiresIn: '1h' }
+      { expiresIn: '12h' }
     );
 
 
