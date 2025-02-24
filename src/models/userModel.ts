@@ -11,6 +11,7 @@ interface IUser extends Document {
   last_login?: Date;        // 마지막 로그인 시간 (추천)
   is_verified: boolean;     // 이메일 인증 여부 (추천)
   role: string;             // 유저 역할 (일반, 관리자 등 - 추천)
+  verification_token?: string; // 인증 토큰 (추천)
 }
 
 // MongoDB 스키마 정의
@@ -23,7 +24,8 @@ const UserSchema: Schema = new Schema({
   warning_count: { type: Number, default: 0 },
   last_login: { type: Date },
   is_verified: { type: Boolean, default: false },
-  role: { type: String, default: 'user' }
+  role: { type: String, default: 'user' },
+  verification_token: { type: String }, // 이메일 인증 토큰, 액세스토큰 등
 });
 
 // User 모델 생성

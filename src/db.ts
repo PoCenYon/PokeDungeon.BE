@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -6,22 +5,14 @@ dotenv.config();
 
 export const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || '');
+    await mongoose.connect(process.env.MONGO_URI || '', {
+      dbName: 'poke-dungeon',
+      serverSelectionTimeoutMS: 5000, // 5초 내에 연결하지 못하면 오류 발생
+      socketTimeoutMS: 45000, // 소켓 타임아웃 설정
+    });
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
     console.error('❌ MongoDB connection failed:', err);
     process.exit(1);
   }
 };
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'poke_dungeon',
-  process.env.DB_USER || 'root',
-  process.env.DB_PASS || 'password',
-  {
-    host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql'
-  }
-);
-
-export default sequelize;
