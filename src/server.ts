@@ -8,7 +8,11 @@ import { errorHandler } from './middlewares/errorHandler';
 dotenv.config();
 const app = express();
 
-app.use(cors({ origin: 'https://poke-dungeon.vercel.app', credentials: true }));
+// app.use(cors({ origin: 'https://poke-dungeon.vercel.app', credentials: true }));
+app.use(cors({
+  origin: '*',  // 🌍 모든 출처 허용 (개발 환경에서만 사용하세요!)
+  credentials: true
+}));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 
