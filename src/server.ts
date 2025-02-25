@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes';
 import cors from 'cors';
 import { errorHandler } from './middlewares/errorHandler';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 const app = express();
@@ -15,6 +16,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 mongoose.connect(process.env.MONGO_URI || '', { dbName: 'poke-dungeon' })
   .then(() => console.log('✅ MongoDB connected successfully'))
