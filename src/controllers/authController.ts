@@ -13,7 +13,7 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction): v
     res.status(403).json({ message: '접근 권한이 없습니다.' });
     return;
   }
-
+  console.log('관리자 권한이 있습니다.');
   next();
 };
 
@@ -24,6 +24,7 @@ export const sendVerificationEmail = async (req: Request, res: Response): Promis
     const user = await User.findOne({ email });
     if (!user) {
       res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+      console.log(email, '사용자를 찾을 수 없습니다.');
       return;
     }
 
@@ -31,7 +32,7 @@ export const sendVerificationEmail = async (req: Request, res: Response): Promis
     user.verification_token = token;
     user.is_verified = false;
     await user.save();
-
+    console.log(email, '인증 토큰 생성 완료');
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
     await sendEmail(email, '이메일 인증', `계정을 인증하려면 다음 링크를 클릭하세요: ${verificationLink}`);
 
@@ -60,17 +61,19 @@ const sendEmail = async (to: string, subject: string, text: string) => {
     html: `
       <div style="font-family: Arial, sans-serif; font-size: 16px;">
         <p>안녕하세요,</p>
-        <p>계정을 인증하려면 본문의 링크를 클릭하세요</p>
+        <p>계정을 인증하려면 본문의 링크를 클릭하세요.</p>
+        <a href="${text}" style="display: inline-block; padding: 10px 20px; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none;">인증하기</a>
+        <p>감사합니다.</p>
         <hr />
         <p style="font-size: 12px; color: #555;">본 이메일은 PokeDungeon에서 발송되었습니다.</p>
       </div>
     `,
-    text,                    // 텍스트 내용 (스팸 방지용으로 HTML과 함께 사용)
     headers: {
       'X-Mailer': 'NodeMailer',
       'X-Priority': '3', // 일반 우선순위
     },
   });
+  console.log('이메일 전송 완료');
 };
 
 export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
@@ -80,16 +83,19 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     const user = await User.findOne({ verification_token: token });
     if (!user) {
       res.status(404).json({ message: '유효하지 않은 인증 토큰입니다.' });
+      console.log('유효하지 않은 인증 토큰입니다.');
       return;
     }
 
     user.is_verified = true;
     user.verification_token = undefined;
     await user.save();
+    console.log('이메일이 인증되었습니다.');
 
     res.status(200).json({ message: '이메일이 인증되었습니다. 이제 로그인할 수 있습니다.' });
   } catch (error) {
     res.status(500).json({ message: '이메일 인증 중 오류가 발생했습니다.', error });
+    console.log('이메일 인증 중 오류가 발생했습니다.', error);
   }
 };
 
@@ -100,6 +106,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400).json({ message: '이미 사용 중인 이메일입니다.' });
+      console.log(email, '이미 사용 중인 이메일입니다.');
       return;
     }
 
@@ -117,7 +124,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     await newUser.save();
-
+    console.log(email, '회원가입 완료, 이메일 인증 토큰 생성중...');
     // 이메일 인증 링크 전송
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
     await sendEmail(email, '이메일 인증', `계정을 인증하려면 다음 링크를 클릭하세요: ${verificationLink}`);
@@ -125,6 +132,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({ message: '회원가입이 완료되었습니다. 이메일을 확인해 주세요.' });
   } catch (error) {
     res.status(500).json({ message: '회원가입 중 오류가 발생했습니다.', error });
+    console.log('회원가입 중 오류가 발생했습니다.', error);
   }
 };
 
@@ -135,12 +143,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const user = await User.findOne({ email });
     if (!user) {
       res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+      console.log(email, '사용자를 찾을 수 없습니다.');
       return;
     }
 
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
+      console.log(email, '비밀번호가 일치하지 않습니다.');
       return;
     }
 
@@ -154,10 +164,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       process.env.JWT_SECRET || 'secret', // .env에 JWT_SECRET 추가 필요
       { expiresIn: '12h' }
     );
-
-
+    console.log(email, '로그인 성공');
     res.status(200).json({ message: '로그인 성공', token });
   } catch (error) {
     res.status(500).json({ message: '로그인 중 오류가 발생했습니다.', error });
+    console.log('로그인 중 오류가 발생했습니다.', error);
   }
 };
