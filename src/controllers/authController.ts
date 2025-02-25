@@ -41,21 +41,35 @@ export const sendVerificationEmail = async (req: Request, res: Response): Promis
   }
 };
 
-// 이메일 전송 함수
+/**  이메일 전송 함수*/
 const sendEmail = async (to: string, subject: string, text: string) => {
   const transporter = nodemailer.createTransport({
-    service: 'Gmail',
+    host: 'smtp.gmail.com', // 서비스 대신 명시적으로 설정
+    port: 465,              // Gmail의 SSL 포트
+    secure: true,           // SSL을 사용하므로 true로 설정
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
+      pass: process.env.EMAIL_PASS, // 앱 비밀번호 사용
+    },
   });
 
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to,
-    subject,
-    text
+    from: `"PokeDungeon" <${process.env.EMAIL_USER}>`, // 이메일 발신자
+    to,                      // 수신자
+    subject,                 // 이메일 제목
+    html: `
+      <div style="font-family: Arial, sans-serif; font-size: 16px;">
+        <p>안녕하세요,</p>
+        <p>계정을 인증하려면 본문의 링크를 클릭하세요</p>
+        <hr />
+        <p style="font-size: 12px; color: #555;">본 이메일은 PokeDungeon에서 발송되었습니다.</p>
+      </div>
+    `,
+    text,                    // 텍스트 내용 (스팸 방지용으로 HTML과 함께 사용)
+    headers: {
+      'X-Mailer': 'NodeMailer',
+      'X-Priority': '3', // 일반 우선순위
+    },
   });
 };
 
