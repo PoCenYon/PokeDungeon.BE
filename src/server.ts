@@ -10,9 +10,11 @@ dotenv.config();
 const app = express();
 
 // app.use(cors({ origin: 'https://poke-dungeon.vercel.app', credentials: true }));
+// ✅ CORS 설정
 app.use(cors({
-  origin: '*',  // 🌍 모든 출처 허용 (개발 환경에서만 사용하세요!)
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // 프론트엔드 URL을 허용
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // 허용할 HTTP 메서드
+  credentials: true // 쿠키 및 인증 정보를 허용 (필요한 경우)
 }));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
