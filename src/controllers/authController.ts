@@ -62,7 +62,10 @@ const sendEmail = async (to: string, subject: string, text: string) => {
       <div style="font-family: Arial, sans-serif; font-size: 16px;">
         <p>안녕하세요,</p>
         <p>계정을 인증하려면 본문의 링크를 클릭하세요.</p>
-        <a href="${text}" style="display: inline-block; padding: 10px 20px; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none;">인증하기</a>
+        <a href=${text} target="_blank" 
+          style="display: inline-block; padding: 10px 20px; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+        인증하기
+        </a>
         <p>감사합니다.</p>
         <hr />
         <p style="font-size: 12px; color: #555;">본 이메일은 PokeDungeon에서 발송되었습니다.</p>
@@ -127,7 +130,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     console.log(email, '회원가입 완료, 이메일 인증 토큰 생성중...');
     // 이메일 인증 링크 전송
     const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
-    await sendEmail(email, '이메일 인증', `계정을 인증하려면 다음 링크를 클릭하세요: ${verificationLink}`);
+    await sendEmail(email, '이메일 인증', verificationLink);
 
     res.status(201).json({ message: '회원가입이 완료되었습니다. 이메일을 확인해 주세요.' });
   } catch (error) {
