@@ -22,14 +22,14 @@ const UserSchema: Schema = new Schema({
   email: { type: String, required: true, unique: true }, // 이메일
   password: { type: String, required: true }, // 암호화된 비밀번호
   created_at: { type: Date, default: Date.now }, // 계정 생성 날짜
-  region: { type: String, required: true }, // 유저 접속 지역
+  region: { type: String, required: true, default: 'Unknown' }, // 유저 접속 지역
   warning_count: { type: Number, default: 0 },
   last_login: { type: Date },
   is_verified: { type: Boolean, default: false },
   role: { type: String, default: 'user' },
   verification_token: { type: String },
-  nickname: { type: String },
-  favoritePokemon: { type: String },
+  nickname: { type: String, default: 'Unknown' },
+  favoritePokemon: { type: String, default: 'Unknown' },
 });
 
 // User 모델 생성
